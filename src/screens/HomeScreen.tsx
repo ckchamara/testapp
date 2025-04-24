@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { Text, View, Button, Switch, Linking, Platform, Share } from 'react-native';
+import { View, StyleSheet, Linking, Platform, Share, StatusBar } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import * as Location from 'expo-location';
 import { useTheme } from '../contexts/ThemeContext';
 import useLocation from '../hooks/useLocation';
-import styles from '../styles/styles';
 import { RootStackParamList } from '../types/navigation';
+import LocationCard from '../components/LocationCard';
+import PremiumSpeedDisplay from '../components/PremiumSpeedDisplay';
+import ThemeToggle from '../components/ThemeToggle';
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -19,17 +20,31 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   // Use our custom hooks
   const { location, speed, errorMsg, permissionStatus } = useLocation();
-  const { isDarkMode, toggleTheme, setDarkMode, theme } = useTheme();
+  const { isDarkMode, toggleTheme, theme } = useTheme();
 
   // Update header with theme colors
   useEffect(() => {
     navigation.setOptions({
       headerStyle: {
         backgroundColor: theme.colors.card,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 5,
+        borderBottomWidth: 0,
       },
-      headerTintColor: theme.colors.text,
+      headerTintColor: theme.colors.primary,
+      headerTitleStyle: {
+        fontWeight: '600',
+        fontSize: 20,
+        letterSpacing: 0.5,
+      },
+      headerRight: () => (
+        <ThemeToggle compact style={styles.headerThemeToggle} />
+      ),
     });
-  }, [navigation, theme]);
+  }, [navigation, theme, isDarkMode]);
 
   /**
    * Open the device's native maps app with current location
@@ -67,59 +82,71 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   };
 
-  // Prepare display text based on current state
-  let speedText = 'Waiting for speed...';
-  if (errorMsg) {
-    speedText = errorMsg;
-  } else if (permissionStatus === 'denied') {
-    speedText = 'Location permission denied. Please enable location services.';
-  } else if (location) {
-    speedText = `Speed: ${speed.toFixed(1)} km/h`;
-  }
-
-  // Apply theme styles
-  const containerStyle = isDarkMode ? styles.darkContainer : styles.lightContainer;
-  const textStyle = isDarkMode ? styles.darkText : styles.lightText;
-
   return (
-    <View style={[styles.container, containerStyle]}>
-      <View style={styles.switchContainer}>
-        <Text style={textStyle}>Dark Mode</Text>
-        <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          thumbColor={isDarkMode ? '#f5dd4b' : '#f4f3f4'}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleTheme}
-          value={isDarkMode}
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.colors.background}
+      />
+
+      <View style={styles.speedContainer}>
+        <PremiumSpeedDisplay
+          speed={speed}
+          loading={!location && !errorMsg}
+          error={errorMsg || (permissionStatus === 'denied' ? 'Location permission denied' : null)}
         />
       </View>
-      <Text style={[styles.speedText, textStyle]}>{speedText}</Text>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Open Real-time Location in Maps"
+
+      <View style={styles.cardsContainer}>
+        <LocationCard
+          title="Open in Maps"
+          subtitle="View your real-time location in your maps app"
+          icon="map-pin"
           onPress={openInMaps}
           disabled={!location}
-          color={isDarkMode ? theme.colors.primary : undefined}
         />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Show My Location on Map"
+
+        <LocationCard
+          title="Interactive Map"
+          subtitle="View your location on an interactive map"
+          icon="map"
           onPress={() => location && navigation.navigate('Map', { location })}
           disabled={!location}
-          color={isDarkMode ? theme.colors.primary : undefined}
         />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button
+
+        <LocationCard
           title="Share Location"
+          subtitle="Share your current location with others"
+          icon="share-2"
           onPress={shareLocation}
           disabled={!location}
-          color={isDarkMode ? theme.colors.primary : undefined}
         />
       </View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 20,
+  },
+  headerThemeToggle: {
+    marginRight: 16,
+  },
+  speedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+  },
+  cardsContainer: {
+    width: '90%',
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
+});
 
 export default HomeScreen;

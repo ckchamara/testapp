@@ -1,4 +1,5 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 const styles = StyleSheet.create({
   container: {
@@ -6,26 +7,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    // Add subtle gradient overlay effect
+    backgroundColor: 'transparent',
   },
   lightContainer: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#ffffff',  // Brighter white for premium feel
   },
   darkContainer: {
     backgroundColor: '#121212',
   },
   lightText: {
-    color: '#000000',
+    color: '#1a1a1a',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'sans-serif',
+    fontSize: 16,
+    letterSpacing: 0.3,
   },
   darkText: {
     color: '#ffffff',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'sans-serif',
+    fontSize: 16,
+    letterSpacing: 0.3,
   },
   lightHeaderText: {
-    color: '#000000',
-    marginRight: 5,
+    color: '#1a1a1a',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'sans-serif-medium',
+    marginRight: 8,
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   darkHeaderText: {
     color: '#ffffff',
-    marginRight: 5,
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Display' : 'sans-serif-medium',
+    marginRight: 8,
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   speedText: {
     fontSize: 32,
@@ -49,6 +64,29 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 15,
     backgroundColor: 'rgba(128, 128, 128, 0.2)',
+  },
+  premiumButton: {
+    backgroundColor: '#FFD700',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  premiumButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#FFD700',
   },
   map: {
     flex: 1,
